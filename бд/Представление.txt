@@ -1,0 +1,17 @@
+CREATE VIEW VW_AgentDetails 
+AS SELECT TOP(100) Agent.Type AS [Тип агента], 
+					Agent.Name AS [Наименование агента],
+					Agent.Phone AS [Номер телефона],
+					Agent.Priority AS Приоритет,
+					(SELECT SUM(MinPriceAgent) AS Expr1
+						FROM Product AS p
+						WHERE(p.Id IN
+                              (SELECT ProductId FROM ProductSale AS ps
+                               WHERE  (AgentId = Agent.Id)))) / 200 AS [Скидка агента],
+					CAST ((SELECT SUM(MinPriceAgent) AS Expr1 FROM Product AS p
+                           WHERE (p.Id IN
+                                 (SELECT ProductId FROM dbo.ProductSale AS ps
+                                  WHERE (AgentId = Agent.Id) AND (Date BETWEEN DATEADD(year, - 10, SYSDATETIME()) AND SYSDATETIME())))) AS varchar(10)) + ' руб.' AS [Количество продаж],
+					'Директор: ' + Agent.Director + '. Адрес: ' + Agent.Address AS Описание, Agent.Id, Agent.ImageLogo
+FROM Agent
+ORDER BY Приоритет DESC;

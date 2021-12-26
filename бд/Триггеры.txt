@@ -1,0 +1,26 @@
+// UPDATE
+CREATE TRIGGER TR_AGENT_AFTERUPDATE
+ON Agent
+AFTER UPDATE
+AS BEGIN
+DECLARE @agent_name VARCHAR(50);
+DECLARE @old_priority INT
+DECLARE @new_priority INT
+
+SELECT @agent_name = (SELECT Name FROM inserted)
+SELECT @old_priority = (SELECT Priority FROM deleted)
+SELECT @new_priority = (SELECT Priority FROM inserted)
+
+INSERT INTO HistoryAgent(NameAgent, OldPriority, NewPriority, Datetime) VALUES (@agent_name, @old_priority, @new_priority, CURRENT_TIMESTAMP)
+END;
+
+// INSERT
+CREATE TRIGGER TR_AGENT_AFTERINSERT
+ON Agent
+AFTER INSERT
+AS BEGIN
+DECLARE @agent_name VARCHAR(50);
+SELECT @agent_name = (SELECT Name FROM inserted)
+
+INSERT INTO HistoryAgent(NameAgent, Datetime) VALUES (@agent_name, CURRENT_TIMESTAMP)
+END;
